@@ -20,3 +20,10 @@ TEST(thread_suite, future_check)
     th.join();
 }
 
+
+class BagCopy
+{
+    using Item = std::pair<std::string, int>;
+
+    // ...
+};

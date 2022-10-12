@@ -1,21 +1,74 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <memory>
+#include <variant>
+
+using namespace std::chrono_literals;
+
+class TodoList final
+{
+public:
+    TodoList() = default;
+    TodoList(const TodoList&) = delete;
+    TodoList& operator=(const TodoList&) = delete;
+
+    void add_item(const std::string& name, std::function<void()> func)
+    {
+        _list[name] = func;
+    }
+
+    void start()
+    {
+        for (auto& [name, item]: _list) {
+            std::cout << "START NAME: " << name << std::endl;
+            auto th = std::make_shared<std::thread>(std::get<0>(item));
+            item = th;
+        }
+    }
+
+    void wait()
+    {
+        for (auto& [name, item]: _list) {
+            std::cout << "WAIT NAME: " << name << std::endl;
+            std::get<1>(item)->join();
+        }
+    }
+
+private:
+    using todo_item = std::variant<std::function<void()>, std::shared_ptr<std::thread>>;
+    using todo_list = std::map<std::string, todo_item>;
+
+    todo_list _list;
+};
+
 
 int main()
 {
-    using todo_list = std::map<std::string, std::string>;
+    TodoList tdl;
+    tdl.add_item("up 1 to 10",
+                 [](){
+                     for (int i=1; i<=10; i++) {
+                         std::cout << "UP: " << i << std::endl;
+                         std::this_thread::sleep_for(1s);
+                     }    
+                 }
+    );
+    tdl.add_item("down 1000 to 980", 
+                 [](){
+                     for (int i=1000; i>=980; i--) {
+                         std::cout << "DOWN: " << i << std::endl;
+                         std::this_thread::sleep_for(0.5s);
+                     }    
+                 }
+    );
 
-    todo_list tdl;
-    tdl["up 1 to 10"] = "prefix: 'UP', count up from 1 to 10, interval 1 second";
-    tdl["down 1000 to 980"] = "prefix: 'DOWN', count down from 1000 to 980, interval 0.5 second";
-
-    for (todo_list::const_iterator it=tdl.begin(); it!= tdl.end(); ++it) {
-        std::string name = it->first;
-        std::string desc = it->second;
-
-        std::cout << "NAME: " << name << ", DESC: " << desc << std::endl;
-    }
+    tdl.start();
+    tdl.wait();
 
     return 0;
 }
+
