@@ -37,3 +37,18 @@ TEST(bag_shared_suite, remove_by_int_ok)
     std::size_t nremoved = bag.remove_by_int(42);
     ASSERT_EQ(nremoved, 1);
 }
+
+TEST(bag_shared_suite, move_and_copy_possible)
+{
+    BagShared bag;
+    auto item1 = std::make_shared<BagShared::Item>("something", 42);
+    auto item2 = std::make_shared<BagShared::Item>("something", 42);
+
+    // copy
+    bag.insert(item1);
+    ASSERT_NE(item1.get(), nullptr);
+
+    // move
+    bag.insert(std::move(item2));
+    ASSERT_EQ(item2.get(), nullptr);
+}

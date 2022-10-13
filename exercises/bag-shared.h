@@ -10,14 +10,10 @@ class BagShared
 public:
     using Item = std::pair<std::string, int>;
 
-    void insert(const std::shared_ptr<Item>& item)
+    template <typename T>
+    void insert(T&& item)
     {
-        _items.push_back(item);
-    }
-
-    void insert(std::shared_ptr<Item>&& item)
-    {
-        _items.push_back(std::move(item));
+        _items.push_back(std::forward<T>(item));
     }
 
     const std::shared_ptr<Item>& find_by_int(int key) const
