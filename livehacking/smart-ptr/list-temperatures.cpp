@@ -1,24 +1,23 @@
 #include "sensors.h"
-#include "smartptr.h"
-
-#include <map>
 #include <iostream>
+#include <map>
 #include <string>
+#include <memory>
 
 using namespace std;
 
-
 int main()
 {
-    map<string, SmartPtr> sensors;
+    map<string, shared_ptr<Sensor>> sensors;
 
-    SmartPtr const_sensor(new ConstantSensor(36.5));
-    SmartPtr random_sensor(new RandomSensor(35.3, 39.4));
-    SmartPtr error_sensor(new ErrorSensor);
+    auto const_sensor = make_shared<ConstantSensor>(36.5);
+    auto random_sensor = make_shared<RandomSensor>(35.4, 39.4);
 
-    sensors["const"] = const_sensor;
+    sensors["const"] = std::move(const_sensor);
     sensors["random"] = random_sensor;
-    sensors["error"] = error_sensor;
+
+    if (const_sensor)
+        cout << const_sensor->get_temperature() << endl;
 
     for (auto& [name, sensor]: sensors)
         cout << name << ": " << sensor->get_temperature() << endl;

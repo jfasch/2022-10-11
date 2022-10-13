@@ -2,6 +2,7 @@
 #define CXX11_UNIQUE_PTR_SENSORS_H
 
 #include <random>
+#include <stdexcept>
 
 
 class Sensor
@@ -41,6 +42,15 @@ public:
 
 private:
     double _temp;
+};
+
+class ErrorSensor : public Sensor
+{
+public:
+    virtual double get_temperature()
+    {
+        throw std::runtime_error("jessas!");
+    }
 };
 
 #endif
