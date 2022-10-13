@@ -25,8 +25,7 @@ public:
     {
         for (auto& [name, item]: _list) {
             std::cout << "START NAME: " << name << std::endl;
-            auto th = std::make_shared<std::thread>(std::get<0>(item));
-            item = th;
+            item = std::thread(std::get<0>(item));
         }
     }
 
@@ -34,12 +33,12 @@ public:
     {
         for (auto& [name, item]: _list) {
             std::cout << "WAIT NAME: " << name << std::endl;
-            std::get<1>(item)->join();
+            std::get<1>(item).join();
         }
     }
 
 private:
-    using todo_item = std::variant<std::function<void()>, std::shared_ptr<std::thread>>;
+    using todo_item = std::variant<std::function<void()>, std::thread>;
     using todo_list = std::map<std::string, todo_item>;
 
     todo_list _list;
